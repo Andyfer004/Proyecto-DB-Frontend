@@ -1,63 +1,73 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaUser, FaLock } from 'react-icons/fa';
-import bcrypt from 'bcryptjs'; // Importa bcryptjs
 import './Login.css';
 
 const Login = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [correo, setCorreo] = useState('');
+  const [contrasena, setContrasena] = useState('');
+  const [error, setError] = useState('');
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
-    // Encriptar la contraseña antes de enviarla al servidor
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Enviar los datos de inicio de sesión al servidor
-    const userData = { email, password: hashedPassword };
+  
     try {
-      const response = await fetch('http://127.0.0.1:8000/usuarios', {
+      const hashedPassword = await hashPassword(contrasena);
+      console.log('Contraseña encriptada:', hashedPassword);
+      // Realizar la solicitud de inicio de sesión
+      const response = await fetch('http://127.0.0.1:8000/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(userData),
+        body: JSON.stringify({ correo, contrasena: hashedPassword }),
       });
-
-      const data = await response.json();
-
-      // Verificar si el inicio de sesión fue exitoso
+  
       if (response.ok) {
-        // Redirigir según el rol del usuario
-        switch (data.role) {
-          case 'Administrador':
-            navigate.push('/admin');
+        // Si la respuesta es exitosa, redirige al usuario a la página adecuada
+        const data = await response.json();
+        switch (data.rol) {
+          case 'administrador':
+            navigate('/administrador');
             break;
-          case 'Cliente':
-            navigate.push('/cliente');
+          case 'cliente':
+            navigate('/cliente');
             break;
-          case 'Mesero':
-            navigate.push('/mesero');
+          case 'empleado':
+            navigate('/barista');
             break;
-          case 'Cocinero':
-            navigate.push('/cocinero');
+          case 'cocinero':
+            navigate('/cocinero');
             break;
-          case 'Barista':
-            navigate.push('/barista');
+          case 'mesero':
+            navigate('/mesero');
             break;
+          // Agrega más casos según sea necesario
           default:
-            // Manejar otros roles o errores
+            // Maneja otros roles o errores
             break;
         }
+      } else if (response.status === 401) {
+        // Si la respuesta es 401 (Unauthorized), muestra un mensaje de error al usuario
+        setError('Credenciales incorrectas');
       } else {
-        // Manejar errores de inicio de sesión
-        console.error('Error en inicio de sesión:', data.message);
+        // Otros errores del servidor
+        setError('Error en el inicio de sesión');
       }
     } catch (error) {
       console.error('Error:', error);
     }
+  };
+  
+  const hashPassword = async (password) => {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashedPassword = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+    console.log('Contraseña encriptada:', hashedPassword); 
+    return hashedPassword;
   };
 
   return (
@@ -65,20 +75,14 @@ const Login = () => {
       <div className='wrapper'>
         <form onSubmit={handleLogin}>
           <h1>Login</h1>
+          {error && <div className='error'>{error}</div>}
           <div className='input-box'>
-            <input type='email' placeholder='email' value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <input type='email' placeholder='Email' value={correo} onChange={(e) => setCorreo(e.target.value)} required />
             <FaUser className='icon' />
           </div>
           <div className='input-box'>
-            <input type='password' placeholder='Password' value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <input type='password' placeholder='Password' value={contrasena} onChange={(e) => setContrasena(e.target.value)} required />
             <FaLock className='icon' />
-          </div>
-          <div className='remember-forgot'>
-            <label>
-              <input type='checkbox' />
-              "Remember me"
-            </label>
-            <a href='hello'>Forgot password</a>
           </div>
           <button className='button' type='submit'>
             Login

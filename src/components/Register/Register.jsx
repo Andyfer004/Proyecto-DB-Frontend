@@ -1,25 +1,24 @@
 import React, { useState } from 'react';
-import bcrypt from 'bcryptjs';
 import './Register.css';
 
 const Register = () => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState('');
+  const [usuario, setUsuario] = useState('');
+  const [correo, setCorreo] = useState('');
+  const [contrasena, setContrasena] = useState('');
+  const [rol, setRol] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
   const handleRegister = async (e) => {
     e.preventDefault();
 
     // Encriptar la contraseña antes de enviarla a la API
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await hashPassword(contrasena);
 
     const userData = {
-      username,
-      email,
-      password: hashedPassword,
-      role,
+      usuario,
+      correo,
+      contrasena: hashedPassword,
+      rol,
     };
 
     // Enviar los datos a tu API
@@ -31,7 +30,7 @@ const Register = () => {
         },
         body: JSON.stringify(userData),
       });
-
+      console.log(response);
       const data = await response.json();
       console.log(data); // Puedes manejar la respuesta de la API aquí
 
@@ -44,6 +43,16 @@ const Register = () => {
     }
   };
 
+  // Función para encriptar la contraseña utilizando SHA-256
+  const hashPassword = async (password) => {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashedPassword = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+    return hashedPassword;
+  };
+
   return (
     <div className='register-page'>
       <div className='wrapper'>
@@ -51,17 +60,17 @@ const Register = () => {
           <h1>Register</h1>
           {successMessage && <p>{successMessage}</p>} {/* Aquí se muestra el mensaje si successMessage tiene algún valor */}
           <div className='input-box'>
-            <input type='text' placeholder='Username' value={username} onChange={(e) => setUsername(e.target.value)} required />
+            <input type='text' placeholder='Username' value={usuario} onChange={(e) => setUsuario(e.target.value)} required />
           </div>
           <div className='input-box'>
-            <input type='email' placeholder='Email' value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <input type='email' placeholder='Email' value={correo} onChange={(e) => setCorreo(e.target.value)} required />
           </div>
           <div className='input-box'>
-            <input type='password' placeholder='Password' value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <input type='password' placeholder='Password' value={contrasena} onChange={(e) => setContrasena(e.target.value)} required />
           </div>
           <div className='input-box'>
             <label htmlFor='role'>Selecciona un Rol:</label>
-            <select id='role' value={role} onChange={(e) => setRole(e.target.value)} required>
+            <select id='role' value={rol} onChange={(e) => setRol(e.target.value)} required>
               <option value='' disabled selected>
                 Selecciona una opción
               </option>
