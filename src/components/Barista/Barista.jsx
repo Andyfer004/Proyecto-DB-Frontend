@@ -20,7 +20,7 @@ const header = () => {
         fontWeight: 'bold',
         margin: '0',
         padding: '5%',
-        color: 'White',
+        color: 'white',
         textDecoration: 'none',
     };
 
@@ -32,11 +32,10 @@ const header = () => {
 }
 
 const DrinksList = () => {
-    // Aquí puedes obtener las listas de bebidas, clientes, ID de mesa y área
-    // Puedes obtenerlas de un estado, de un contexto, o pasadas como props
-    const clients = ['Cliente 1', 'Cliente 2', 'Cliente 3', 'Cliente 4'];
-    const tableIds = ['Mesa 1', 'Mesa 2', 'Mesa 3', 'Mesa 4'];
-    const areas = ['Área 1', 'Área 2', 'Área 3', 'Área 4'];
+    const [clients, setClients] = useState(['Cliente 1', 'Cliente 2', 'Cliente 3', 'Cliente 4']);
+    const [tableIds, setTableIds] = useState(['Mesa 1', 'Mesa 2', 'Mesa 3', 'Mesa 4']);
+    const [areas, setAreas] = useState(['Área 1', 'Área 2', 'Área 3', 'Área 4']);
+    const [drinks, setDrinks] = useState(['Café', 'Té', 'Cóctel', 'Refresco']); // Estado para las bebidas
 
     // Estado para almacenar los pedidos marcados como listos
     const [readyOrders, setReadyOrders] = useState([]);
@@ -49,17 +48,28 @@ const DrinksList = () => {
         display: 'flex',
         flexDirection: 'row', // Alinear las listas en fila
         justifyContent: 'space-around', // Espacio uniforme entre las listas
-        fontFamily: 'Century Gothic', // Cambiar la fuente a Century Gothic
+        fontFamily: 'Open Sans, sans-serif', // Cambiar la fuente a Century Gothic
+        textAlign: 'center', 
     };
 
     const itemStyles = {
         marginBottom: '10px',
+        backgroundColor: 'lightslategrey',
+        padding: '10px', // Ajusta el espaciado interno de los elementos
+        borderRadius: '5px',
+        width: '100px', // Ajusta el ancho de los elementos
+        color: 'white',
+        fontSize: '0.9em', // Ajusta el tamaño de la fuente
+        textAlign: 'center', // Centra el texto dentro de los elementos
     };
+    
+    
 
     const titleStyles = {
         fontSize: '1.5em',
         fontWeight: 'bold',
-        marginBottom: '10px',
+        fontFamily: 'Open Sans, sans-serif',
+        marginBottom: '10px'
     };
 
     const columnStyles = {
@@ -75,6 +85,15 @@ const DrinksList = () => {
         } else {
             setReadyOrders([...readyOrders, index]);
         }
+
+        // Eliminar el cliente, mesa o área correspondiente
+        const updatedClients = clients.filter((_, i) => i !== index);
+        const updatedTableIds = tableIds.filter((_, i) => i !== index);
+        const updatedAreas = areas.filter((_, i) => i !== index);
+
+        setClients(updatedClients);
+        setTableIds(updatedTableIds);
+        setAreas(updatedAreas);
     };
 
     return (
@@ -88,7 +107,15 @@ const DrinksList = () => {
                 </ul>
             </div>
             <div style={columnStyles}>
-                <h2 style={titleStyles}>ID de Mesa:</h2>
+                <h2 style={titleStyles}>Bebidas:</h2>
+                <ul>
+                    {drinks.map((drink, index) => (
+                        <li key={index} style={itemStyles}>{drink}</li>
+                    ))}
+                </ul>
+            </div>
+            <div style={columnStyles}>
+                <h2 style={titleStyles}>ID Mesa:</h2>
                 <ul>
                     {tableIds.map((tableId, index) => (
                         <li key={index} style={itemStyles}>{tableId}</li>
@@ -112,6 +139,7 @@ const DrinksList = () => {
                                 type="checkbox"
                                 checked={readyOrders.includes(index)}
                                 onChange={() => handleCheck(index)}
+                                style={{ backgroundColor: 'lightblue' }} // Cambia el color de fondo del input
                             />
                         </li>
                     ))}
@@ -123,7 +151,7 @@ const DrinksList = () => {
 
 const Barista = () => {
     const stylemain = {
-        backgroundColor: 'White',
+        backgroundColor: 'white',
     };
 
     const cardStyles = {
