@@ -1,29 +1,29 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 const header = () => {
-
     const styles = {
-        top: 0, // Colocarla en la parte superior  
+        top: 0,
         background: 'rgba(0, 119, 182)',
-        color: 'Black', 
+        color: 'black',
         display: 'flex',
         justifyContent: 'center',
         padding: '0',
         alignItems: 'center',
         height: '10vh',
         width: '100%',
-        zIndex: 1000, 
+        zIndex: 1000,
     };
 
     const h2Styles = {
         fontFamily: 'Roboto',
-        fontSize: '2em', 
+        fontSize: '2em',
         fontWeight: 'bold',
         margin: '0',
         padding: '5%',
-        color: 'White',
-        textDecoration: 'none', 
+        color: 'white',
+        textDecoration: 'none',
     };
 
     return (
@@ -34,27 +34,19 @@ const header = () => {
 }
 
 const Mesero = () => {
-    const stylemain = {
-        backgroundColor: 'White',
-        display: 'flex',
-        flexDirection: 'column', // Cambiado a columna para asegurar el flujo vertical
-        flexWrap: 'wrap',
-    };
-
     const [areas, setAreas] = useState([]);
 
     useEffect(() => {
-        // Realiza la solicitud para obtener las áreas de restaurante
-        axios.get('http://127.0.0.1:8000/obtenerAreas') // Ajusta la URL según tu configuración
+        axios.get('http://127.0.0.1:8000/getareas')
             .then(response => {
-                setAreas(response.data); // Actualiza el estado con los datos recibidos
+                setAreas(response.data);
             })
             .catch(error => {
                 console.error('Error al obtener las áreas:', error);
             });
-    }, []); // La dependencia vacía asegura que se realice solo una vez al montar el componente
+    }, []);
 
-    const stylecard = {
+    const styleButton = {
         boxSizing: 'border-box',
         padding: '2%',
         margin: '1rem 0 0 1rem',
@@ -62,39 +54,39 @@ const Mesero = () => {
         transition: '0.3s',
         backgroundColor: 'rgba(138, 1, 0, 1)',
         display: 'flex',
-        flexDirection: 'column', // Ajustado para mejor alineación del contenido
-        justifyContent: 'center', // Alinea el contenido al centro horizontalmente
-        alignItems: 'center', // Alinea el contenido al centro verticalmente
-        width: '30%', // Ancho para tres tarjetas por fila
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '30%',
         borderRadius: '10px',
+        cursor: 'pointer', // Cambia el cursor al pasar sobre el botón
+        border: 'none', // Elimina el borde del botón
     };
 
     const h2StylesCards = {
         fontFamily: 'Roboto',
-        fontSize: '1em', 
+        fontSize: '1em',
         fontWeight: 'bold',
         margin: '0',
         padding: '5%',
-        color: 'White',
-        textDecoration: 'none', 
+        color: 'white',
+        textDecoration: 'none',
     };
-    
 
     const renderCards = () => {
         return areas.map(area => (
-            <div key={area.Id_area} className="card" style={stylecard} >
+            <Link key={`${area.id}`} to={`/mesas/${area.id}`} className="card" style={styleButton}>
                 <h3 style={h2StylesCards}>{area.nombre}</h3>
-            </div>
+            </Link>
         ));
     };
+
     return (
-        <div id = 'root' style={stylemain}>
-            <main >
-                {header()}
-                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around', width: '100%' }}>
+        <div id='root'>
+            {header()}
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around', width: '100%' }}>
                 {renderCards()}
-                </div>
-            </main>
+            </div>
         </div>
     );
 };

@@ -8,6 +8,9 @@ import Barista from './components/Barista/Barista';
 import Cocinero from './components/Cocinero/Cocinero';
 import Mesero from './components/Mesero/Mesero';
 import Cliente from './components/Cliente/Cliente';
+import Mesas from './components/Mesero/Mesas';
+import Cuenta from './components/Mesero/Cuenta';
+
 
 
 
@@ -22,6 +25,8 @@ function App() {
           <Route path="/Cocinero" element={<Cocinero />} />
           <Route path="/Mesero" element={<Mesero />} />
           <Route path="/Cliente" element={<Cliente />} />
+          <Route path="/Mesas/:nombre" element={<Mesas />} />
+          <Route path="/Cuentas/:id" element={<Cuenta />} />
         </Routes>
       </BrowserRouter>
   );

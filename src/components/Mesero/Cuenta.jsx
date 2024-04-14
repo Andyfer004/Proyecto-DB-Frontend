@@ -7,7 +7,7 @@ const header = () => {
         color: 'Black', // color de texto
         display: 'flex',
         justifyContent: 'space-between',
-        padding: '0 10%',
+        padding: '0 0%',
         alignItems: 'center',
         height: '10vh',
         width: '100%',
