@@ -76,12 +76,32 @@ const Mesas = () => {
         color: 'white',
         textDecoration: 'none',
     };
+    
 
+    const toggleEstadoMesa = (mesaId, estadoActual) => {
+        const nuevoEstado = !estadoActual; // Cambia el estado actual al contrario
+        axios.put(`http://127.0.0.1:8000/updatemesas/${mesaId}`, { estado: nuevoEstado })
+            .then(response => {
+                // Actualizar el estado local de la mesa después de la respuesta exitosa del servidor
+                const mesasActualizadas = mesas.map(mesa => {
+                    if (mesa.id === mesaId) {
+                        return { ...mesa, disponible: nuevoEstado };
+                    }
+                    return mesa;
+                });
+                setMesas(mesasActualizadas);
+            })
+            .catch(error => {
+                console.error('Error al actualizar el estado de la mesa:', error);
+            });
+    };
+    
     const renderCards = () => {
         return mesas.map(mesa => (
-            <Link key={mesa.id} to={`/cuentas/${mesa.id}`} className="card" style={styleButton}>
-                <h3 style={h2StylesCards}>{mesa.id}</h3>
-            </Link>
+            <Link key={mesa.id} to={`/cuentas/${mesa.id}`} className="card" style={styleButton} onClick={() => toggleEstadoMesa(mesa.id, mesa.disponible)}>
+    <h3 style={h2StylesCards}>{mesa.id}</h3>
+</Link>
+
         ));
     };
 

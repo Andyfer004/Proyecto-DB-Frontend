@@ -6,6 +6,9 @@ const Register = () => {
   const [correo, setCorreo] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [rol, setRol] = useState('');
+  const [nombre, setNombre] = useState(''); // Nuevo estado para el nombre
+  const [nit, setNit] = useState(''); // Nuevo estado para el nit
+  const [direccion, setDireccion] = useState(''); // Nuevo estado para la dirección
   const [successMessage, setSuccessMessage] = useState('');
 
   const handleRegister = async (e) => {
@@ -38,10 +41,35 @@ const Register = () => {
       if (response.ok) {
         setSuccessMessage('Cuenta creada exitosamente.');
       }
+      if (rol === 'cliente') {
+        const clienteData = {
+          nombre,
+          nit,
+          direccion,
+        };
+  
+        const responseCliente = await fetch('http://localhost:8000/clientes', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(clienteData),
+        });
+        console.log(responseCliente);
+        const dataCliente = await responseCliente.json();
+        console.log(dataCliente); // Puedes manejar la respuesta de la API aquí
+  
+        // Mostrar mensaje de éxito para el cliente
+        if (responseCliente.ok) {
+          setSuccessMessage('Cuenta de cliente creada exitosamente.');
+        }
+      }
     } catch (error) {
       console.error('Error:', error);
     }
   };
+
+  
 
   // Función para encriptar la contraseña utilizando SHA-256
   const hashPassword = async (password) => {
@@ -81,6 +109,19 @@ const Register = () => {
               <option value='barista'>Bar</option>
             </select>
           </div>
+          {rol === 'cliente' && (
+            <>
+              <div className='input-box'>
+                <input type='text' placeholder='Nombre' value={nombre} onChange={(e) => setNombre(e.target.value)} required />
+              </div>
+              <div className='input-box'>
+                <input type='text' placeholder='NIT' value={nit} onChange={(e) => setNit(e.target.value)} required />
+              </div>
+              <div className='input-box'>
+                <input type='text' placeholder='Dirección' value={direccion} onChange={(e) => setDireccion(e.target.value)} required />
+              </div>
+            </>
+          )}
           <button className='button' type='submit'>
             Register
           </button>
