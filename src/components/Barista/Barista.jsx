@@ -18,7 +18,7 @@ const Header = () => {
         fontFamily: 'Roboto',
         fontSize: '2.5em',
         fontWeight: 'bold',
-        margin: '0',
+        margin: '0', 
         padding: '5%',
         color: 'white',
         textDecoration: 'none',
@@ -33,24 +33,38 @@ const Header = () => {
 
 const DrinksList = () => {
     const [orders, setOrders] = useState([]);
-    const [readyOrders, setReadyOrders] = useState([]);
+    const [readyOrders, setReadyOrders] = useState({});
 
     useEffect(() => {
-        fetch('http://127.0.0.1:8000/getdrinks')
+        fetch('http://127.0.0.1:8000/getordenes')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
                 return response.json();
             })
-            .then(data => setOrders(data))
+            .then(data => {
+                // Mapear la respuesta para ajustarla a los campos correctos
+                const ordersData = data.map(order => ({
+                    Id_cuenta: order.Id_cuenta,
+                    Id_bebida: order.Id_bebida,
+                    cantidad_bebida: order.cantidad_bebida,
+                    estado: order.estado
+                }));
+                setOrders(ordersData);
+                // Inicializar readyOrders con un objeto vacío para cada Id_cuenta
+                const initialReadyOrders = ordersData.reduce((acc, order) => {
+                    acc[order.Id_cuenta] = false;
+                    return acc;
+                }, {});
+                setReadyOrders(initialReadyOrders);
+            })
             .catch(error => {
                 console.error('Error fetching orders:', error);
                 // Aquí puedes manejar el error, por ejemplo, mostrando un mensaje al usuario
                 // o cambiando el estado para indicar que hubo un error
             });
     }, []);
-    
 
     const listStyles = {
         margin: '20px',
@@ -88,11 +102,15 @@ const DrinksList = () => {
         alignItems: 'center',
     };
 
-    const handleCheck = (index) => {
-        const newReadyOrders = [...readyOrders];
-        newReadyOrders[index] = !newReadyOrders[index]; // Cambiar el estado del pedido
-        setReadyOrders(newReadyOrders);
+    const handleCheck = (Id_cuenta) => {
+        setReadyOrders(prevReadyOrders => ({
+            ...prevReadyOrders,
+            [Id_cuenta]: !prevReadyOrders[Id_cuenta]
+        }));
+    
+        setOrders(prevOrders => prevOrders.filter(order => order.Id_cuenta !== Id_cuenta));
     };
+    
 
     return (
         <div>
@@ -102,7 +120,7 @@ const DrinksList = () => {
                     <h2 style={titleStyles}>Clientes:</h2>
                     <ul>
                         {orders.map((order, index) => (
-                            <li key={index} style={itemStyles}>{order.cliente}</li>
+                            <li key={index} style={itemStyles}>{order.Id_cuenta}</li>
                         ))}
                     </ul>
                 </div>
@@ -110,7 +128,7 @@ const DrinksList = () => {
                     <h2 style={titleStyles}>Bebidas:</h2>
                     <ul>
                         {orders.map((order, index) => (
-                            <li key={index} style={itemStyles}>{order.bebida}</li>
+                            <li key={index} style={itemStyles}>{order.Id_bebida}</li>
                         ))}
                     </ul>
                 </div>
@@ -118,7 +136,7 @@ const DrinksList = () => {
                     <h2 style={titleStyles}>ID Mesa:</h2>
                     <ul>
                         {orders.map((order, index) => (
-                            <li key={index} style={itemStyles}>{order.mesa}</li>
+                            <li key={index} style={itemStyles}>{order.cantidad_bebida}</li>
                         ))}
                     </ul>
                 </div>
@@ -126,7 +144,7 @@ const DrinksList = () => {
                     <h2 style={titleStyles}>Área:</h2>
                     <ul>
                         {orders.map((order, index) => (
-                            <li key={index} style={itemStyles}>{order.area}</li>
+                            <li key={index} style={itemStyles}>{order.estado}</li>
                         ))}
                     </ul>
                 </div>
@@ -137,8 +155,8 @@ const DrinksList = () => {
                             <li key={index} style={itemStyles}>
                                 <input
                                     type="checkbox"
-                                    checked={readyOrders[index]} // Usar el estado local para el estado del checkbox
-                                    onChange={() => handleCheck(index)}
+                                    checked={readyOrders[order.Id_cuenta]} // Usar el estado local para el estado del checkbox
+                                    onChange={() => handleCheck(order.Id_cuenta)}
                                     style={{ backgroundColor: 'lightblue' }}
                                 />
                             </li>
