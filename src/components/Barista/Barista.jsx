@@ -29,9 +29,7 @@ const Header = () => {
             <h1 style={h2Styles}>Bar</h1>
         </nav>
     );
-};
-
-const DrinksList = () => {
+};const DrinksList = () => {
     const [orders, setOrders] = useState([]);
 
     useEffect(() => {
@@ -45,23 +43,25 @@ const DrinksList = () => {
         ])
             .then(responses => Promise.all(responses.map(response => response.json())))
             .then(([ordenes, clientes, drinks, cuentas, mesas, areas]) => {
+                console.log('ordenes:', ordenes);
+                console.log('clientes:', clientes);
+                console.log('drinks:', drinks);
+                console.log('cuentas:', cuentas);
+                console.log('mesas:', mesas);
+                console.log('areas:', areas);
+
                 const ordersData = ordenes.map(order => {
-                    // Obtener el cliente correspondiente a esta orden
                     const cliente = clientes.find(cliente => cliente.Id_cliente === order.Id_cliente);
-                    // Obtener la bebida correspondiente a esta orden
-                    const drink = drinks.find(drink => drink.Id_bebida === order.Id_bebida);
-                    // Obtener la cuenta correspondiente a esta orden
-                    const cuenta = cuentas.find(cuenta => cuenta.Id_cuenta === order.Id_cuenta);
-                    // Obtener la mesa correspondiente a esta cuenta
-                    const mesa = mesas.find(mesa => mesa.Id_mesa === cuenta.Id_mesa);
-                    // Obtener el área correspondiente a esta mesa
-                    const area = areas.find(area => area.Id_area === mesa.Id_area);
+                    const drink = drinks.find(drink => drink.id === order.Id_bebida);
+                    const cuenta = cuentas.find(cuenta => cuenta.id === order.Id_cuenta);
+                    const mesa = mesas.find(mesa => mesa.id === cuenta?.Id_mesa);
+                    const area = mesa ? areas.find(area => area.id === mesa.Id_area) : undefined;
 
                     return {
-                        Id_orden: order.Id_orden,
+                        Id_orden: order.id,
                         cliente: cliente ? cliente.nombre : 'Cliente no encontrado',
                         bebida: drink ? drink.nombre : 'Bebida no encontrada',
-                        mesa: mesa ? mesa.Id_mesa : 'Mesa no encontrada',
+                        mesa: mesa ? mesa.id : 'Mesa no encontrada',
                         area: area ? area.nombre : 'Área no encontrada',
                         cantidad_bebida: order.cantidad_bebida,
                         estado: order.estado
